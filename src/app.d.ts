@@ -3,10 +3,18 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			session?: SessionData;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+	}
+}
+
+declare module 'svelte-kit-sessions' {
+	interface SessionData {
+		challenge?: string;
 	}
 }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { startRegistration } from '@simplewebauthn/browser';
 	import { browser } from '$app/environment';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
@@ -19,8 +20,38 @@
 		event.preventDefault();
 	}
 
-	function register(event: SubmitEvent) {
+	async function register(event: SubmitEvent) {
 		event.preventDefault();
+		const resp = await fetch('/generate-registration-options');
+
+		let attResp;
+		try {
+			const opts = await resp.json();
+			attResp = await startRegistration(opts);
+		} catch (error) {
+			console.error(error);
+			return;
+		}
+
+		const verificationResp = await fetch('/verify-registration', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(attResp)
+		});
+
+		const verificationJSON = await verificationResp.json();
+
+		if (verificationJSON && verificationJSON.verified) {
+			alert('Authenticator registered!');
+		} else {
+			alert(
+				`Oh no, something went wrong! Response: <pre>${JSON.stringify(
+					verificationJSON
+				)}</pre>`
+			);
+		}
 	}
 </script>
 
