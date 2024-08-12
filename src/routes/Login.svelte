@@ -14,7 +14,7 @@
 	let error = $state('');
 
 	async function loginWithPasskeys() {
-		const resp = await fetch('/generate-authentication-options');
+		const resp = await fetch('/authentication/generate-options');
 		let asseResp;
 		try {
 			const opts = await resp.json();
@@ -24,7 +24,7 @@
 			return;
 		}
 
-		const verificationResp = await fetch('/verify-authentication', {
+		const verificationResp = await fetch('/authentication/verify', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

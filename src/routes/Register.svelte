@@ -13,7 +13,7 @@
 
 	async function register(event: SubmitEvent) {
 		event.preventDefault();
-		const resp = await fetch('/generate-registration-options', {
+		const resp = await fetch('/registration/generate-options', {
 			method: 'POST',
 			body: JSON.stringify({
 				username: username
@@ -30,7 +30,7 @@
 			return;
 		}
 
-		const verificationResp = await fetch('/verify-registration', {
+		const verificationResp = await fetch('/registration/verify', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
