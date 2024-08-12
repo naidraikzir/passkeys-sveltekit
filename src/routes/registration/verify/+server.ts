@@ -9,7 +9,7 @@ import type {
 } from '@simplewebauthn/types';
 import { json } from '@sveltejs/kit';
 
-import { rpID, expectedOrigin } from '$lib/server/index';
+import { rpID, expectedOrigin } from '$lib/server';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {
