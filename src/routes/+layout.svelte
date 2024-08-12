@@ -8,6 +8,6 @@
 	<title>Passkeys SvelteKit</title>
 </svelte:head>
 
-<div class="container mx-auto px-4 h-screen">
+<div class="container mx-auto px-4">
 	{@render children()}
 </div>

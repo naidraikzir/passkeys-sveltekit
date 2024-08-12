@@ -57,11 +57,12 @@ export async function POST({ request, locals }) {
 				counter,
 				transports: authenticator.response.transports
 			};
-			user.devices.push(newDevice);
+			user?.devices.push(newDevice);
 		}
 	}
 
 	await session.setData({ user, challenge: undefined });
+	await session.save();
 
 	return json({ verified });
 }

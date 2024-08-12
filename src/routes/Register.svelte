@@ -26,7 +26,7 @@
 			attResp = await startRegistration(opts);
 		} catch (err) {
 			console.error(err);
-			error = error as string;
+			error = err as string;
 			return;
 		}
 
