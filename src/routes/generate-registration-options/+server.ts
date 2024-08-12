@@ -4,23 +4,21 @@ import {
 } from '@simplewebauthn/server';
 import { json } from '@sveltejs/kit';
 
-import { inMemoryUserDeviceDB, loggedInUserId, rpID } from '$lib/server/index';
+import { rpID } from '$lib/server';
+import type { User } from '$lib/types.js';
 
 /** @type {import('./$types').RequestHandler} */
-export async function GET({ locals }) {
+export async function POST({ request, locals }) {
 	const { session } = locals;
-	const user = inMemoryUserDeviceDB[loggedInUserId];
-
-	const {
-		/**
-		 * The username can be a human-readable name, email, etc... as it is intended only for display.
-		 */
-		username,
-		devices
-	} = user;
+	const { username } = await request.json();
+	const user: User = {
+		id: username,
+		username: `${username}@${rpID}`,
+		devices: []
+	};
 
 	const opts: GenerateRegistrationOptionsOpts = {
-		rpName: 'SimpleWebAuthn Example',
+		rpName: 'Passkeys SvelteKit',
 		rpID,
 		userName: username,
 		timeout: 60_000,
@@ -31,11 +29,13 @@ export async function GET({ locals }) {
 		 * the browser if it's asked to perform registration when one of these ID's already resides
 		 * on it.
 		 */
-		excludeCredentials: devices.map((dev) => ({
-			id: dev.credentialID,
-			type: 'public-key',
-			transports: dev.transports
-		})),
+		excludeCredentials: user?.devices
+			? user.devices.map((dev) => ({
+					id: dev.credentialID,
+					type: 'public-key',
+					transports: dev.transports
+				}))
+			: [],
 		authenticatorSelection: {
 			residentKey: 'discouraged',
 			/**
@@ -57,7 +57,10 @@ export async function GET({ locals }) {
 	 * The server needs to temporarily remember this value for verification, so don't lose it until
 	 * after you verify an authenticator response.
 	 */
-	await session.setData({ challenge: options.challenge });
+	await session.setData({
+		user,
+		challenge: options.challenge
+	});
 	await session.save();
 
 	return json(options);

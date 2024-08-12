@@ -9,24 +9,23 @@ import type {
 } from '@simplewebauthn/types';
 import { json } from '@sveltejs/kit';
 
-import {
-	inMemoryUserDeviceDB,
-	loggedInUserId,
-	rpID,
-	expectedOrigin
-} from '$lib/server/index';
+import { rpID, expectedOrigin } from '$lib/server/index';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {
 	const { session } = locals;
-	const body: RegistrationResponseJSON = await request.json();
-	const user = inMemoryUserDeviceDB[loggedInUserId];
+	const {
+		authenticator
+	}: {
+		authenticator: RegistrationResponseJSON;
+	} = await request.json();
+	const user = session.data.user;
 	const expectedChallenge = session.data.challenge;
 
 	let verification: VerifiedRegistrationResponse;
 	try {
 		const opts: VerifyRegistrationResponseOpts = {
-			response: body,
+			response: authenticator,
 			expectedChallenge: `${expectedChallenge}`,
 			expectedOrigin,
 			expectedRPID: rpID,
@@ -44,8 +43,8 @@ export async function POST({ request, locals }) {
 	if (verified && registrationInfo) {
 		const { credentialPublicKey, credentialID, counter } = registrationInfo;
 
-		const existingDevice = user.devices.find(
-			(device) => device.credentialID === credentialID
+		const existingDevice = user?.devices.find(
+			(device: AuthenticatorDevice) => device.credentialID === credentialID
 		);
 
 		if (!existingDevice) {
@@ -56,13 +55,13 @@ export async function POST({ request, locals }) {
 				credentialPublicKey,
 				credentialID,
 				counter,
-				transports: body.response.transports
+				transports: authenticator.response.transports
 			};
 			user.devices.push(newDevice);
 		}
 	}
 
-	await session.setData({ challenge: undefined });
+	await session.setData({ user, challenge: undefined });
 
 	return json({ verified });
 }
