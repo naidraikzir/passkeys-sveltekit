@@ -2,6 +2,7 @@ import {
 	generateAuthenticationOptions,
 	type GenerateAuthenticationOptionsOpts
 } from '@simplewebauthn/server';
+import type { AuthenticatorDevice } from '@simplewebauthn/types';
 import { json } from '@sveltejs/kit';
 
 import { rpID } from '$lib/server';
@@ -12,8 +13,8 @@ export async function GET({ locals }) {
 	const { user } = session.data;
 
 	const opts: GenerateAuthenticationOptionsOpts = {
-		timeout: 60000,
-		allowCredentials: user?.devices.map((dev) => ({
+		timeout: 60_000,
+		allowCredentials: user?.devices.map((dev: AuthenticatorDevice) => ({
 			id: dev.credentialID,
 			type: 'public-key',
 			transports: dev.transports

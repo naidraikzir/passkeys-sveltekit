@@ -13,7 +13,7 @@ export async function POST({ request, locals }) {
 	const { username } = await request.json();
 	const user: User = {
 		id: username,
-		username: `${username}@${rpID}`,
+		username,
 		devices: []
 	};
 
