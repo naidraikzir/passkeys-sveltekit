@@ -2,6 +2,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import { startRegistration } from '@simplewebauthn/browser';
+	import type { RegistrationResponseJSON } from '@simplewebauthn/types';
 
 	type Props = {
 		onSwitchForm: () => void;
@@ -20,7 +21,7 @@
 			})
 		});
 
-		let attResp;
+		let attResp: RegistrationResponseJSON;
 		try {
 			const opts = await resp.json();
 			attResp = await startRegistration(opts);
@@ -43,7 +44,7 @@
 
 		const verificationJSON = await verificationResp.json();
 
-		if (verificationJSON && verificationJSON.verified) {
+		if (verificationJSON?.verified) {
 			error = '';
 			alert('Authenticator registered!');
 			onSwitchForm();

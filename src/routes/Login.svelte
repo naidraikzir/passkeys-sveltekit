@@ -4,6 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import { startAuthentication } from '@simplewebauthn/browser';
+	import type { AuthenticationResponseJSON } from '@simplewebauthn/types';
 
 	type Props = {
 		onSwitchForm: () => void;
@@ -15,7 +16,7 @@
 
 	async function loginWithPasskeys() {
 		const resp = await fetch('/authentication/generate-options');
-		let asseResp;
+		let asseResp: AuthenticationResponseJSON;
 		try {
 			const opts = await resp.json();
 			asseResp = await startAuthentication(opts);
@@ -34,8 +35,8 @@
 
 		const verificationJSON = await verificationResp.json();
 
-		if (verificationJSON && verificationJSON.verified) {
-			alert(`User authenticated!`);
+		if (verificationJSON?.verified) {
+			alert('User authenticated!');
 			goto('/dashboard');
 		} else {
 			error = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
@@ -46,7 +47,7 @@
 
 	function login(event: SubmitEvent) {
 		event.preventDefault();
-		alert(`User authenticated!`);
+		alert('User authenticated!');
 		goto('/dashboard');
 	}
 </script>
